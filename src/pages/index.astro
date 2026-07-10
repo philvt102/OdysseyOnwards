@@ -1,5 +1,5 @@
 ---
-
+import "../styles/global.css";
 ---
 
 <html lang="en">
@@ -9,9 +9,133 @@
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<title>Odyssey Onwards</title>
 	</head>
 	<body>
-		<h1>Astro</h1>
+	<div id="header">
+        <div id="titlebox">
+        <h1 id="title">Odyssey Onwards</h1>
+        <div id="RHtitle">
+            <div id="links">
+                <a href="" title="Visit the Real Arcade Museum">Delmarcade</a>
+                <a href="" title="Repairs / Sales">videogameCRASH</a>
+                <a href="">About</a>
+            </div>
+            <input type="search" placeholder="search"> 
+        </div>
+        </div>
+        <div id="selection">
+            <p id="headerDesc">A Virtual Home Video Game Hardware Museum</p>
+            <fieldset id="selectBox">
+                <ul id="checks">
+                    <li>
+                        <input type="checkbox" id="console" name="selection" value="console" checked>
+                        <label for="console"> Consoles</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="addon" name="selection" value="addon">
+                        <label for="addon"> Add-ons</label>
+                    </li>
+                    
+                    <li>
+                        <input type="checkbox" id="tabletop" name="selection" value="tabletop">
+                        <label for="tabletop"> Tabletop Systems</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="micro" name="selection" value="micro">
+                        <label for="micro"> Microcomputers</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="pongConsole" name="selection" value="pongConsole">
+                        <label for="pongConsole"> Pong Consoles</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="handheld" name="selection" value="handheld">
+                        <label for="handheld"> Handhelds</label>
+                    </li>
+                    
+                    <li>
+                        <input type="checkbox" id="pnp" name="selection" value="pnp">
+                        <label for="pnp"> Plug and Play</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="other" name="selection" value="other">
+                        <label for="other"> Other</label>
+                    </li>
+                </ul>
+            </fieldset>
+            <fieldset id="buttons">
+                <div id="years">
+                    <input type="button" id="70" value="1970s">
+                    <input type="button" id="80" value="1980s">
+                    <input type="button" id="90" value="1990s">
+                    <input type="button" id="00" value="2000s">
+                    <input type="button" id="10" value="2010s">
+                    <input type="button" id="20" value="2020s">
+                </div>
+                <div id="manu">
+                    <input type="button" id="atari" value="Atari">
+                    <input type="button" id="nintendo" value="Nintendo">
+                    <input type="button" id="sega" value="Sega">
+                    <input type="button" id="sony" value="Sony">
+                    <input type="button" id="microsoft" value="Microsoft">
+                    <input type="button" id="else" value="Everything Else">
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div id="gallery">
+        <div class="gallery-track">
+            <img src="src/img/odysseyMain.webp">
+            <img src="src/img/channelFMain.webp">
+            <img src="src/img/2600lightSixerMain.webp">
+            <img src="src/img/intellivisionMain.webp">
+            <img src="src/img/colecovisionMain.webp">
+            <img src="src/img/52004portMain.webp">
+            <img src="src/img/famicomMain.webp">
+            <img src="src/img/masterSystemMain.webp">
+            <img src="src/img/NESmain.webp">
+            <img src="src/img/odysseyMain.webp">
+            <img src="src/img/channelFMain.webp">
+            <img src="src/img/2600lightSixerMain.webp">
+            <img src="src/img/intellivisionMain.webp">
+            <img src="src/img/colecovisionMain.webp">
+            <img src="src/img/52004portMain.webp">
+            <img src="src/img/famicomMain.webp">
+            <img src="src/img/masterSystemMain.webp">
+            <img src="src/img/NESmain.webp">
+        </div>  
+    </div>
 	</body>
+	<style>
+		#gallery {
+			overflow: hidden;
+			display: flex;
+			width: 100%; /* Ensure your gallery has a defined width */
+		}
+
+		.gallery-track {
+			display: flex;
+			animation: slideLeft 30s infinite linear;
+			/* Pause on hover optional */
+		}
+
+		.gallery-track:hover {
+			animation-play-state: paused;
+		}
+
+		.gallery-track img {
+			width: 300px; /* Set a fixed width or percentage for your images */
+			flex-shrink: 0;
+		}
+
+		@keyframes slideLeft {
+			from {
+				transform: translateX(0);
+			}
+			to {
+				transform: translateX(-50%);
+			}
+		}
+	</style>
 </html>

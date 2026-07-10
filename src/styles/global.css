@@ -1,0 +1,67 @@
+@font-face{
+        font-family: 'EncodeSansExpanded-Regular';
+        src: url('/fonts/EncodeSansExpanded-Regular.woff2') format(woff2),
+            url('/fonts/EncodeSansExpanded-Regular.woff') format(woff);
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+    }
+
+*{
+    font-family: 'EncodeSansExpanded-Regular', 'system-ui', 'sans-serif';
+}
+
+#title{
+    font-size:xx-large;
+    padding-left: 50px;  
+}
+
+#titlebox{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#links{
+    display: flex;
+    align-self: center;
+    margin: 10px;
+    gap: 10px;
+}
+
+#RHtitle{
+    display:flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+#headerDesc{
+    padding-left: 50px;
+}
+
+fieldSet{
+    border: none;
+}
+
+ul{
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+li{
+    padding: 5px;
+    width: 20%;
+}
+
+#buttons{
+    display: flex;
+    justify-content: space-around;
+}
+
+input[type=button]{
+    background-color:orange;
+    border-radius: 8px;
+    margin: 0px 2px;
+}
