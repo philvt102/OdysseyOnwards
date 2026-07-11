@@ -1,0 +1,74 @@
+[
+    {
+        "name": "Odyssey",
+        "manufacturer": "Magnavox",
+        "releaseYear": "1972",
+        "type": "console",
+        "mainImg": "/img/odysseyMain.webp",
+        "galleryImg": ""
+    },
+    {
+        "name": "Channel F",
+        "manufacturer": "Fairchild",
+        "releaseYear": "1976",
+        "type": "console",
+        "mainImg": "/img/channelFMain.webp",
+        "galleryImg": ""
+    },
+    {
+        "name": "2600 (VCS)",
+        "manufacturer": "Atari",
+        "releaseYear": "1977",
+        "type": "console",
+        "mainImg": "/img/2600lightSixerMain.webp",
+        "galleryImg": ""
+    },
+    {
+        "name": "Intellivision",
+        "manufacturer": "Mattel",
+        "releaseYear": "1979",
+        "type": "console",
+        "mainImg": "/img/intellivisionMain.webp",
+        "galleryImg": ""
+    },
+    {
+        "name": "Color TV-Game Block Kazushi",
+        "manufacturer": "Nintendo",
+        "releaseYear": "1979",
+        "type": "pong",
+        "mainImg": "/img/colorTVGameBlockKazushiMain.webp",
+        "galleryImg": ""
+    },
+    {
+        "name": "Colecovision",
+        "manufacturer": "Coleco",
+        "releaseYear": "1982",
+        "type": "console",
+        "mainImg": "/img/colecovsionMain.webp",
+        "galleryImg": ""
+    },
+    {
+        "name": "5200",
+        "manufacturer": "Atari",
+        "releaseYear": "1982",
+        "type": "console",
+        "mainImg": "/img/52004portMain.webp",
+        "galleryImg": ""
+    },
+    {
+        "name": "NES",
+        "manufacturer": "Nintendo",
+        "releaseYear": "1985",
+        "type": "console",
+        "mainImg": "/img/NESmain.webp",
+        "galleryImg": ""
+    },
+    {
+        "name": "Master System",
+        "manufacturer": "Sega",
+        "releaseYear": "1985",
+        "type": "console",
+        "mainImg": "/img/masterSystemMain.webp",
+        "galleryImg": ""
+    }
+]

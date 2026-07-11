@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=ODS to JSON Converter
+Comment=Drag and drop an ODS file here to convert it to JSON
+Exec=node /home/philvt102/OdysseyOnwards/src/cms/convert.js %f
+Terminal=true
+Categories=Utility;
+Icon=
+Path=/home/philvt102/OdysseyOnwards/src/cms
+StartupNotify=false
+
