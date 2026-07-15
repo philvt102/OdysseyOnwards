@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import systems from "../cms/systems.json";
 ---
 
 <html lang="en">
@@ -65,23 +66,27 @@ import "../styles/global.css";
                 </ul>
             </fieldset>
             <fieldset id="buttons">
-                <div id="years">
-                    <input type="button" id="70" value="1970s">
-                    <input type="button" id="80" value="1980s">
-                    <input type="button" id="90" value="1990s">
-                    <input type="button" id="00" value="2000s">
-                    <input type="button" id="10" value="2010s">
-                    <input type="button" id="20" value="2020s">
-                </div>
-                <div id="manu">
-                    <input type="button" id="atari" value="Atari">
-                    <input type="button" id="nintendo" value="Nintendo">
-                    <input type="button" id="sega" value="Sega">
-                    <input type="button" id="sony" value="Sony">
-                    <input type="button" id="microsoft" value="Microsoft">
-                    <input type="button" id="else" value="Everything Else">
-                </div>
-            </fieldset>
+    <div id="years">
+        <!-- Added class="decade-btn" explicitly to each element below -->
+        <input type="button" id="70" class="decade-btn" data-decade="1970" value="1970s">
+        <input type="button" id="80" class="decade-btn" data-decade="1980" value="1980s">
+        <input type="button" id="90" class="decade-btn" data-decade="1990" value="1990s">
+        <input type="button" id="00" class="decade-btn" data-decade="2000" value="2000s">
+        <input type="button" id="10" class="decade-btn" data-decade="2010" value="2010s">
+        <input type="button" id="20" class="decade-btn" data-decade="2020" value="2020s">
+    </div>
+    <div id="manu">
+        <input type="button" id="atari" value="Atari">
+        <input type="button" id="nintendo" value="Nintendo">
+        <input type="button" id="sega" value="Sega">
+        <input type="button" id="sony" value="Sony">
+        <input type="button" id="microsoft" value="Microsoft">
+        <input type="button" id="else" value="Everything Else">
+    </div>
+
+    <!-- The target drop wrapper box remains right below the layout arrays -->
+    <div id="dropdown-menu" class="dropdown hidden"></div>
+</fieldset>
         </div>
     </div>
     <div id="gallery">
@@ -91,25 +96,200 @@ import "../styles/global.css";
             <img src="/img/2600lightSixerMain.webp">
             <img src="/img/intellivisionMain.webp">
 			<img src="/img/colorTVGameBlockKazushiMain.webp">
+            <img src="img/400Main.webp">
             <img src="/img/colecovisionMain.webp">
             <img src="/img/52004portMain.webp">
             <img src="/img/famicomMain.webp">
             <img src="/img/masterSystemMain.webp">
             <img src="/img/NESmain.webp">
+            <img src="/img/gameBoyMain.webp">
+            <img src="/img/segaCDMain.webp">
+            <img src="/img/virtualBoyMain.webp">
+            <img src="/img/namco5in1ArcadeClassics.webp">
             <img src="/img/odysseyMain.webp">
             <img src="/img/channelFMain.webp">
             <img src="/img/2600lightSixerMain.webp">
             <img src="/img/intellivisionMain.webp">
 			<img src="/img/colorTVGameBlockKazushiMain.webp">
+            <img src="img/400Main.webp">
             <img src="/img/colecovisionMain.webp">
             <img src="/img/52004portMain.webp">
             <img src="/img/famicomMain.webp">
             <img src="/img/masterSystemMain.webp">
             <img src="/img/NESmain.webp">
+            <img src="/img/gameBoyMain.webp">
+            <img src="/img/segaCDMain.webp">
+            <img src="/img/virtualBoyMain.webp">
+            <img src="/img/namco5in1ArcadeClassics.webp">
         </div>  
     </div>
 	</body>
+
+    <script define:vars={{ systems }}>
+    const dropdown = document.getElementById('dropdown-menu');
+    const checkboxes = document.querySelectorAll('#checks input[type="checkbox"]');
+    const decadeButtons = document.querySelectorAll('.decade-btn');
+
+    // Fail-safe debug tracking
+    console.log(`Found ${decadeButtons.length} decade buttons on initialization.`);
+
+    let activeDecade = null;
+    let hoverTimeout = null;
+
+    function getCheckedTypes() {
+        return Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+    }
+
+    function parseJsonTypes(typeString) {
+        if (!typeString) return [];
+        return typeString.replace(/[\[\]]/g, '').split(',').map(t => t.trim());
+    }
+
+    function buildDropdownHTML(startYear) {
+        let html = '';
+        const checkedTypes = getCheckedTypes();
+
+        for (let year = startYear; year < startYear + 10; year++) {
+            const matches = systems.filter(item => {
+                const releaseYear = parseInt(item.releaseYear, 10);
+                if (releaseYear !== year) return false;
+
+                const itemTypes = parseJsonTypes(item.type);
+                if (checkedTypes.includes('other')) {
+                    const knownTypes = ['console', 'addon', 'tabletop', 'micro', 'pong', 'handheld', 'pnp'];
+                    if (!itemTypes.some(t => knownTypes.includes(t))) return true;
+                }
+                return itemTypes.some(t => checkedTypes.includes(t));
+            });
+
+            html += `
+                <div class="dropdown-col">
+                    <h4>${year}</h4>
+                    <div class="col-links">
+                        ${matches.length > 0 
+                            ? matches.map(item => `<a href="#${item.name.replace(/\s+/g, '-')}">${item.name}</a>`).join('')
+                            : `<span class="no-systems">—</span>`
+                        }
+                    </div>
+                </div>
+            `;
+        }
+        return html;
+    }
+
+    decadeButtons.forEach(btn => {
+        btn.addEventListener('mouseenter', (e) => {
+            clearTimeout(hoverTimeout);
+            activeDecade = parseInt(e.target.dataset.decade, 10);
+            console.log(`Hover active for decade: ${activeDecade}`);
+            dropdown.innerHTML = buildDropdownHTML(activeDecade);
+            dropdown.classList.remove('hidden');
+        });
+
+        btn.addEventListener('mouseleave', () => {
+            hoverTimeout = setTimeout(() => dropdown.classList.add('hidden'), 200);
+        });
+    });
+
+    dropdown.addEventListener('mouseenter', () => clearTimeout(hoverTimeout));
+    dropdown.addEventListener('mouseleave', () => dropdown.classList.add('hidden'));
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+            if (activeDecade && !dropdown.classList.contains('hidden')) {
+                dropdown.innerHTML = buildDropdownHTML(activeDecade);
+            }
+        });
+    });
+</script>
+
+
 	<style>
+        /* --- Dropdown Layout and Color Refinements --- */
+#buttons {
+    position: relative; /* Absolute elements anchor to this container box */
+}
+
+.dropdown {
+    display: grid !important; 
+    grid-template-columns: repeat(10, minmax(0, 1fr)) !important; 
+    gap: 0.5rem;
+    position: absolute;
+    top: 100%; 
+    left: 0;
+    width: 100%; 
+    min-width: 800px; 
+    box-sizing: border-box;
+    background: #1a1a1a; 
+    border: 1px solid #333;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6); /* Soft, dramatic shadow box depth */
+    padding: 1rem;
+    z-index: 100;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.dropdown-col {
+    display: flex !important;
+    flex-direction: column !important; /* Forces items in the column to stack vertically */
+    align-items: center; 
+    border-right: 1px solid #2d2d2d;
+    padding: 0 4px;
+    min-width: 0; 
+}
+
+.dropdown-col:last-child {
+    border-right: none; 
+}
+
+/* FIX: Year Headers are now Orange */
+.dropdown-col h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.95rem;
+    color: #ff9900; /* Vibrant Orange; adjust shade to match your theme */
+    border-bottom: 1px solid #444;
+    padding-bottom: 2px;
+    width: 100%;
+    text-align: center;
+}
+
+/* FIX: Strict block layout formatting to guarantee vertical stacking rows */
+.col-links {
+    display: flex !important;
+    flex-direction: column !important; /* Striking force layout direction downward */
+    gap: 0.4rem;
+    width: 100%;
+    text-align: center;
+}
+
+.col-links a {
+    color: #00bcff;
+    font-size: 0.8rem;
+    text-decoration: none;
+    display: block !important; /* Converts inline anchors to distinct line blocks */
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+}
+
+.col-links a:hover {
+    text-decoration: underline;
+    color: #fff;
+}
+
+.no-systems {
+    color: #555;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+
+
 		#gallery {
 			overflow: hidden;
 			display: flex;

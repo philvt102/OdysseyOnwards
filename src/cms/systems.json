@@ -3,7 +3,7 @@
         "name": "Odyssey",
         "manufacturer": "Magnavox",
         "releaseYear": "1972",
-        "type": "console",
+        "type": "[console]",
         "mainImg": "/img/odysseyMain.webp",
         "galleryImg": ""
     },
@@ -11,7 +11,7 @@
         "name": "Channel F",
         "manufacturer": "Fairchild",
         "releaseYear": "1976",
-        "type": "console",
+        "type": "[console]",
         "mainImg": "/img/channelFMain.webp",
         "galleryImg": ""
     },
@@ -19,7 +19,7 @@
         "name": "2600 (VCS)",
         "manufacturer": "Atari",
         "releaseYear": "1977",
-        "type": "console",
+        "type": "[console]",
         "mainImg": "/img/2600lightSixerMain.webp",
         "galleryImg": ""
     },
@@ -27,7 +27,7 @@
         "name": "Intellivision",
         "manufacturer": "Mattel",
         "releaseYear": "1979",
-        "type": "console",
+        "type": "[console]",
         "mainImg": "/img/intellivisionMain.webp",
         "galleryImg": ""
     },
@@ -35,15 +35,23 @@
         "name": "Color TV-Game Block Kazushi",
         "manufacturer": "Nintendo",
         "releaseYear": "1979",
-        "type": "pong",
+        "type": "[pong]",
         "mainImg": "/img/colorTVGameBlockKazushiMain.webp",
+        "galleryImg": ""
+    },
+    {
+        "name": "400",
+        "manufacturer": "Atari",
+        "releaseYear": "1979",
+        "type": "[micro]",
+        "mainImg": "/img/400Main.webp",
         "galleryImg": ""
     },
     {
         "name": "Colecovision",
         "manufacturer": "Coleco",
         "releaseYear": "1982",
-        "type": "console",
+        "type": "[console]",
         "mainImg": "/img/colecovsionMain.webp",
         "galleryImg": ""
     },
@@ -51,15 +59,23 @@
         "name": "5200",
         "manufacturer": "Atari",
         "releaseYear": "1982",
-        "type": "console",
+        "type": "[console]",
         "mainImg": "/img/52004portMain.webp",
+        "galleryImg": ""
+    },
+    {
+        "name": "Famicom",
+        "manufacturer": "Nintendo",
+        "releaseYear": "1983",
+        "type": "[console]",
+        "mainImg": "/img/famicomMain.webp",
         "galleryImg": ""
     },
     {
         "name": "NES",
         "manufacturer": "Nintendo",
         "releaseYear": "1985",
-        "type": "console",
+        "type": "[console]",
         "mainImg": "/img/NESmain.webp",
         "galleryImg": ""
     },
@@ -67,8 +83,40 @@
         "name": "Master System",
         "manufacturer": "Sega",
         "releaseYear": "1985",
-        "type": "console",
+        "type": "[console]",
         "mainImg": "/img/masterSystemMain.webp",
+        "galleryImg": ""
+    },
+    {
+        "name": "GameBoy",
+        "manufacturer": "Nintendo",
+        "releaseYear": "1989",
+        "type": "[handheld]",
+        "mainImg": "/img/gameBoyMain.webp",
+        "galleryImg": ""
+    },
+    {
+        "name": "Sega CD",
+        "manufacturer": "Sega",
+        "releaseYear": "1991",
+        "type": "[addon]",
+        "mainImg": "/img/segaCDMain.webp",
+        "galleryImg": ""
+    },
+    {
+        "name": "Virtual Boy",
+        "manufacturer": "Nintendo",
+        "releaseYear": "1995",
+        "type": "[console, tabletop]",
+        "mainImg": "/img/virtualBoyMain.webp",
+        "galleryImg": ""
+    },
+    {
+        "name": "Namco 5-in-1 Arcade Classics",
+        "manufacturer": "Jakks Pacific",
+        "releaseYear": "2003",
+        "type": "[pnp]",
+        "mainImg": "/img/namco5in1ArcadeClassics.webp",
         "galleryImg": ""
     }
 ]
