@@ -204,89 +204,96 @@ import systems from "../cms/systems.json";
 </script>
 
 
-	<style>
-        /* --- Dropdown Layout and Color Refinements --- */
-#buttons {
-    position: relative; /* Absolute elements anchor to this container box */
-}
+	<!-- 1. The is:inline attribute forces Astro to preserve this CSS exactly as written -->
+<style is:inline>
+    #buttons {
+        position: relative; /* Absolutely essential anchor point context */
+    }
 
-.dropdown {
-    display: grid !important; 
-    grid-template-columns: repeat(10, minmax(0, 1fr)) !important; 
-    gap: 0.5rem;
-    position: absolute;
-    top: 100%; 
-    left: 0;
-    width: 100%; 
-    min-width: 800px; 
-    box-sizing: border-box;
-    background: #1a1a1a; 
-    border: 1px solid #333;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.6); /* Soft, dramatic shadow box depth */
-    padding: 1rem;
-    z-index: 100;
-    border-radius: 4px;
-    margin-top: 0.5rem;
-}
+    .dropdown {
+        display: grid !important; 
+        grid-template-columns: repeat(10, minmax(0, 1fr)) !important; 
+        gap: 0.5rem;
+        position: absolute;
+        
+        /* FIX: Positions it cleanly right beneath your selection row buttons */
+        top: 100%; 
+        left: 0;
+        width: 100%; 
+        box-sizing: border-box;
+        
+        background: #1a1a1a; 
+        border: 1px solid #333;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.65); 
+        padding: 1rem;
+        z-index: 100;
+        border-radius: 4px;
+        margin-top: 0.5rem;
+    }
 
-.hidden {
-    display: none !important;
-}
+    .hidden {
+        display: none !important;
+    }
 
-.dropdown-col {
-    display: flex !important;
-    flex-direction: column !important; /* Forces items in the column to stack vertically */
-    align-items: center; 
-    border-right: 1px solid #2d2d2d;
-    padding: 0 4px;
-    min-width: 0; 
-}
+    .dropdown-col {
+        /* FIX: display: flex + direction: column forces columns to stay vertical */
+        display: flex !important;
+        flex-direction: column !important; 
+        align-items: center !important; 
+        border-right: 1px solid #2d2d2d;
+        padding: 0 4px;
+        min-width: 0; 
+    }
 
-.dropdown-col:last-child {
-    border-right: none; 
-}
+    .dropdown-col:last-child {
+        border-right: none; 
+    }
 
-/* FIX: Year Headers are now Orange */
-.dropdown-col h4 {
-    margin: 0 0 0.5rem 0;
-    font-size: 0.95rem;
-    color: #ff9900; /* Vibrant Orange; adjust shade to match your theme */
-    border-bottom: 1px solid #444;
-    padding-bottom: 2px;
-    width: 100%;
-    text-align: center;
-}
+    /* FIX: Force year headings to vibrant Orange */
+    .dropdown-col h4 {
+        margin: 0 0 0.5rem 0 !important;
+        font-size: 0.95rem !important;
+        color: #ff9900 !important; /* Orange text token */
+        border-bottom: 1px solid #444 !important;
+        padding-bottom: 2px !important;
+        width: 100% !important;
+        text-align: center !important;
+    }
 
-/* FIX: Strict block layout formatting to guarantee vertical stacking rows */
-.col-links {
-    display: flex !important;
-    flex-direction: column !important; /* Striking force layout direction downward */
-    gap: 0.4rem;
-    width: 100%;
-    text-align: center;
-}
+    .col-links {
+        /* FIX: Forces all console anchors inside to align downwards onto clean separate tracks */
+        display: flex !important;
+        flex-direction: column !important; 
+        gap: 0.4rem !important;
+        width: 100% !important;
+        text-align: center !important;
+    }
 
-.col-links a {
-    color: #00bcff;
-    font-size: 0.8rem;
-    text-decoration: none;
-    display: block !important; /* Converts inline anchors to distinct line blocks */
-    width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis; 
-}
+    .col-links a {
+        color: #00bcff !important;
+        font-size: 0.8rem !important;
+        text-decoration: none !important;
+        
+        /* FIX: Setting layout track to block breaks elements away from inline constraints */
+        display: block !important; 
+        width: 100% !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important; 
+    }
 
-.col-links a:hover {
-    text-decoration: underline;
-    color: #fff;
-}
+    .col-links a:hover {
+        text-decoration: underline !important;
+        color: #fff !important;
+    }
 
-.no-systems {
-    color: #555;
-    font-size: 0.8rem;
-    text-align: center;
-}
+    .no-systems {
+        color: #555 !important;
+        font-size: 0.8rem !important;
+        text-align: center !important;
+    }
+
+
 
 
 

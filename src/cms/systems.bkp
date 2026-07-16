@@ -99,7 +99,7 @@
         "name": "Sega CD",
         "manufacturer": "Sega",
         "releaseYear": "1991",
-        "type": "[add-on]",
+        "type": "[addon]",
         "mainImg": "/img/segaCDMain.webp",
         "galleryImg": ""
     },
