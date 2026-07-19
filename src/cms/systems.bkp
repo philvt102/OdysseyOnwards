@@ -40,11 +40,19 @@
         "galleryImg": ""
     },
     {
-        "name": "400",
+        "name": "Atari 400",
         "manufacturer": "Atari",
         "releaseYear": "1979",
         "type": "[micro]",
         "mainImg": "/img/400Main.webp",
+        "galleryImg": ""
+    },
+    {
+        "name": "Microvision",
+        "manufacturer": "MiltonBradley",
+        "releaseYear": "1979",
+        "type": "[handheld]",
+        "mainImg": "/img/microvisionMain.webp",
         "galleryImg": ""
     },
     {
@@ -104,11 +112,35 @@
         "galleryImg": ""
     },
     {
+        "name": "PlayStation",
+        "manufacturer": "Sony",
+        "releaseYear": "1994",
+        "type": "[console]",
+        "mainImg": "/img/playStationMain.webp",
+        "galleryImg": ""
+    },
+    {
         "name": "Virtual Boy",
         "manufacturer": "Nintendo",
         "releaseYear": "1995",
         "type": "[console, tabletop]",
         "mainImg": "/img/virtualBoyMain.webp",
+        "galleryImg": ""
+    },
+    {
+        "name": "R-Zone",
+        "manufacturer": "Tiger",
+        "releaseYear": "1995",
+        "type": "[wearable]",
+        "mainImg": "/img/rZoneMain.webp",
+        "galleryImg": ""
+    },
+    {
+        "name": "Xbox",
+        "manufacturer": "Microsoft",
+        "releaseYear": "2001",
+        "type": "[console]",
+        "mainImg": "/img/xboxMain.webp",
         "galleryImg": ""
     },
     {

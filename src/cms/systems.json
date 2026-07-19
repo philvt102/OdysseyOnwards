@@ -48,6 +48,14 @@
         "galleryImg": ""
     },
     {
+        "name": "Microvision",
+        "manufacturer": "Milton Bradley",
+        "releaseYear": "1979",
+        "type": "[handheld]",
+        "mainImg": "/img/microvisionMain.webp",
+        "galleryImg": ""
+    },
+    {
         "name": "Colecovision",
         "manufacturer": "Coleco",
         "releaseYear": "1982",
@@ -104,11 +112,35 @@
         "galleryImg": ""
     },
     {
+        "name": "PlayStation",
+        "manufacturer": "Sony",
+        "releaseYear": "1994",
+        "type": "[console]",
+        "mainImg": "/img/playStationMain.webp",
+        "galleryImg": ""
+    },
+    {
         "name": "Virtual Boy",
         "manufacturer": "Nintendo",
         "releaseYear": "1995",
         "type": "[console, tabletop]",
         "mainImg": "/img/virtualBoyMain.webp",
+        "galleryImg": ""
+    },
+    {
+        "name": "R-Zone",
+        "manufacturer": "Tiger",
+        "releaseYear": "1995",
+        "type": "[wearable]",
+        "mainImg": "/img/rZoneMain.webp",
+        "galleryImg": ""
+    },
+    {
+        "name": "Xbox",
+        "manufacturer": "Microsoft",
+        "releaseYear": "2001",
+        "type": "[console]",
+        "mainImg": "/img/xboxMain.webp",
         "galleryImg": ""
     },
     {
