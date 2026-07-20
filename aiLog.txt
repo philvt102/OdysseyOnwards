@@ -1,0 +1,6 @@
+## PROJECT: Odyssey Onwards (Astro)
+- JSON Schema: [ { name: "", manufacturer: "", releaseYear: 1970, type: "['console']", mainImg: "" } ]
+- Mechanics: 10-col decade grid, single-col brand dropdowns, shared dynamic '#dropdown-menu' container.
+- Layout Fixes: Top menu uses 'calc(100% + 8px)' with an invisible '::before' hover bridge to stop flicker. 'Everything Else' button displays alphabetized unique manufacturers, excluding top 5 (Atari, Nintendo, Sega, Sony, Microsoft).
+- Active Script State: Combined nav-flicker logic is stable. Dropdown uses scroll containment (max-height/overflow-y).
+- Current Task: Maintain original gallery setup, but bind checkboxes to dynamically show/hide original gallery elements and debug 'mainImg' paths.

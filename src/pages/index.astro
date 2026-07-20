@@ -347,56 +347,79 @@ import systems from "../cms/systems.json";
             "microsoft",
         ];
 
-        const matches = verifiedSystems.filter((systemObj) => {
-            if (!passesTypeCheck(systemObj, checkedTypes)) return false;
+        // 1. Gather all systems passing the checkbox filters
+        const matchingSystems = verifiedSystems.filter((systemObj) =>
+            passesTypeCheck(systemObj, checkedTypes),
+        );
 
-            // Safely extract manufacturer name regardless of formatting
-            let itemManu = "";
-            if (typeof systemObj === "object" && systemObj !== null) {
-                itemManu =
-                    systemObj.manufacturer || systemObj.Manufacturer || "";
-            } else if (typeof systemObj === "string") {
-                // If the filter is mysteriously receiving raw strings, pass it through
-                itemManu = systemObj;
-            }
+        // 2. Handle the "Everything Else" Unique Brand List
+        if (manufacturerName === "Everything Else") {
+            const uniqueManus = new Set();
 
-            const itemManuLower = String(itemManu).toLowerCase().trim();
-
-            if (manufacturerName === "Everything Else") {
-                return (
-                    !topFiveBrands.includes(itemManuLower) &&
-                    itemManuLower !== ""
-                );
-            }
-
-            return itemManuLower === manufacturerName.toLowerCase().trim();
-        });
-
-        // FOOLPROOF DISPLAY ENGINE:
-        // This maps over your matches and safely handles whatever data type JavaScript is serving
-        const linksHtml = matches
-            .map((systemObj) => {
-                let displayName = "";
-
-                if (typeof systemObj === "object" && systemObj !== null) {
-                    displayName = systemObj.name || "Unknown Object";
-                } else {
-                    // If systemObj is somehow a string or primitive, use it directly as the name!
-                    displayName = String(systemObj);
+            matchingSystems.forEach((systemObj) => {
+                const rawManu = systemObj.manufacturer
+                    ? String(systemObj.manufacturer).trim()
+                    : "";
+                if (rawManu) {
+                    const manuLower = rawManu.toLowerCase();
+                    // Exclude the big five brands
+                    if (!topFiveBrands.includes(manuLower)) {
+                        uniqueManus.add(rawManu); // Keeps original casing for display
+                    }
                 }
+            });
 
-                // Clean up url fragment spacing safely
-                const urlFragment = displayName.replace(/\s+/g, "-");
+            // Convert Set back to an alphabetized array
+            const sortedManus = Array.from(uniqueManus).sort((a, b) =>
+                a.localeCompare(b),
+            );
 
-                return `<a href="#${urlFragment}">${displayName}</a>`;
-            })
-            .join("");
+            return `
+            <div class="dropdown-col" style="border-right: none;">
+                <h4>Other Brands</h4>
+                <div class="col-links">
+                    ${
+                        sortedManus.length > 0
+                            ? sortedManus
+                                  .map((manu) => {
+                                      // Creates a URL slug like #magnavox or #coleco
+                                      const slug = manu
+                                          .toLowerCase()
+                                          .replace(/\s+/g, "-");
+                                      return `<a href="#${slug}">${manu}</a>`;
+                                  })
+                                  .join("")
+                            : `<span class="no-systems">No matching brands</span>`
+                    }
+                </div>
+            </div>
+        `;
+        }
+
+        // 3. Fallback: Original logic for individual Top 5 brand dropdowns
+        const brandMatches = matchingSystems.filter((systemObj) => {
+            const itemManu = systemObj.manufacturer
+                ? String(systemObj.manufacturer).trim()
+                : "";
+            return (
+                itemManu.toLowerCase() === manufacturerName.toLowerCase().trim()
+            );
+        });
 
         return `
         <div class="dropdown-col" style="border-right: none;">
             <h4>${manufacturerName}</h4>
             <div class="col-links">
-                ${matches.length > 0 ? linksHtml : `<span class="no-systems">No matching systems</span>`}
+                ${
+                    brandMatches.length > 0
+                        ? brandMatches
+                              .map(
+                                  (systemObj) =>
+                                      `<a href="#${systemObj.name.replace(/\s+/g, "-")}">${systemObj.name}</a>`,
+                              )
+                              .join("")
+                        : `<span class="no-systems">No matching systems</span>`
+                }
             </div>
         </div>
     `;
@@ -602,6 +625,25 @@ import systems from "../cms/systems.json";
 
         background: transparent !important; /* Stays completely invisible to the user */
         z-index: -1; /* Sits cleanly behind the main text contents layout */
+    }
+
+    #dropdown-menu.single-col {
+        display: block;
+        max-height: 450px; /* Adjust height based on your design limits */
+        overflow-y: auto; /* Turns on vertical scrolling only when needed */
+        overflow-x: hidden;
+    }
+
+    /* Optional: Styled scroll track for a modern layout aesthetic */
+    #dropdown-menu.single-col::-webkit-scrollbar {
+        width: 6px;
+    }
+    #dropdown-menu.single-col::-webkit-scrollbar-thumb {
+        background: #444;
+        border-radius: 4px;
+    }
+    #dropdown-menu.single-col::-webkit-scrollbar-thumb:hover {
+        background: #666;
     }
 
     .hidden {
