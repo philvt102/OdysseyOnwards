@@ -288,37 +288,88 @@ import systems from "../cms/systems.json";
             .map((item) => item.mainImg);
 
         if (filteredImages.length === 0) {
-            galleryTarget.innerHTML = `<div style="color: #555; text-align: center; width: 100%; padding-top: 100px;">No systems match criteria</div>`;
+            galleryTarget.innerHTML = displayList
+                .map(
+                    (imgSrc) =>
+                        `<img src="${imgSrc}" alt="Museum Hardware" draggable="false" />`,
+                )
+                .join("");
             galleryTarget.style.animation = "none";
             return;
         }
 
         const displayList = [...filteredImages, ...filteredImages];
 
+        // 1. Force kill the active animation state instantly
+        galleryTarget.style.animation = "none";
+
+        // 2. Inject the image tags cleanly into the DOM window
         galleryTarget.innerHTML = displayList
             .map((imgSrc) => `<img src="${imgSrc}" alt="Museum Hardware" />`)
             .join("");
 
-        // --- PERFECTLY UNIFORM SPEED ENGINE ---
-        // Wait a brief microtask moment for the browser to register the new layout images
-        requestAnimationFrame(() => {
-            // Read the total horizontal width of the entire track in pixels
-            const trackWidth = galleryTarget.scrollWidth;
+        const totalImages = galleryTarget.querySelectorAll("img");
+        let loadedCount = 0;
 
-            // Define your speed: How many pixels should the track move per second?
-            // Lower numbers = slower movement. Higher numbers = faster movement.
-            const pixelsPerSecond = 10;
+        // 3. Define the mathematical calculation engine
+        function calculateExactTrackVelocity() {
+            let calculatedTrackWidth = 0;
+            const targetHeight = 240; // 80% of your #gallery height (300px * 0.8 = 240px)
+            const elementGap = 20; // The 20px gap from your CSS layout rule
 
-            // Duration = (Half of the total track width) / speed
-            // We divide by 2 because the animation only slides -50% to loop perfectly
-            const exactDuration = trackWidth / 2 / pixelsPerSecond;
+            // Loop through the unique images (the first half of our duplicated list)
+            // to manually calculate how wide the track is in physical pixels
+            for (let i = 0; i < totalImages.length / 2; i++) {
+                const img = totalImages[i];
 
-            // Inject the precise calculated timing back into the CSS animation
+                // Proportional Width Calculation = (Natural Width / Natural Height) * Display Height
+                const imageAspectRatio = img.naturalWidth / img.naturalHeight;
+                let computedImageWidth = imageAspectRatio * targetHeight;
+
+                // Respect the CSS max-width constraint if you have one active
+                if (computedImageWidth > 330) computedImageWidth = 330;
+
+                // Add the image width and its layout spacing gap to the running total
+                calculatedTrackWidth += computedImageWidth + elementGap;
+            }
+
+            // CONTROL RIG: Set your pixels-per-second speed limit here
+            const pixelsPerSecond = 100; // Set this high (like 60 or 100) to explicitly confirm control!
+
+            // Duration = Total physical width of one complete loop sequence / speed
+            const exactDuration = calculatedTrackWidth / pixelsPerSecond;
+
+            // Inject the variable into the CSS scope cleanly
             galleryTarget.style.setProperty(
                 "--scroll-speed",
                 `${exactDuration}s`,
             );
-            galleryTarget.style.animation = "";
+
+            // Push the animation loop back live after a microtask tick
+            setTimeout(() => {
+                galleryTarget.style.animation =
+                    "slideLeft var(--scroll-speed) infinite linear";
+            }, 10);
+        }
+
+        // 4. Safely monitor image load lifecycles
+        totalImages.forEach((img) => {
+            if (img.complete && img.naturalWidth > 0) {
+                loadedCount++;
+                if (loadedCount === totalImages.length)
+                    calculateExactTrackVelocity();
+            } else {
+                img.addEventListener("load", () => {
+                    loadedCount++;
+                    if (loadedCount === totalImages.length)
+                        calculateExactTrackVelocity();
+                });
+                img.addEventListener("error", () => {
+                    loadedCount++;
+                    if (loadedCount === totalImages.length)
+                        calculateExactTrackVelocity();
+                });
+            }
         });
     }
 
@@ -502,6 +553,118 @@ import systems from "../cms/systems.json";
 
     // --- INITIALIZATION INITIAL BOOTSTRAP RUN ---
     renderDynamicGallery();
+
+    // --- BULLETPROOF CAROUSEL MOUSE DRAG & CLICK ENGINE ---
+    let isDragging = false;
+    let startX = 0;
+    let clickStartX = 0;
+    let currentTranslate = 0;
+    let previousTranslate = 0;
+    let animationFrameId = 0;
+
+    const galleryWrapper = document.getElementById("gallery");
+
+    galleryWrapper.addEventListener("mousedown", (e) => {
+        // Only trigger on primary left click
+        if (e.button !== 0) return;
+
+        isDragging = true;
+        startX = e.pageX;
+        clickStartX = e.pageX; // Lock down our click safety checkpoint
+
+        galleryTarget.style.animationPlayState = "paused";
+
+        const computedStyle = window.getComputedStyle(galleryTarget);
+        const matrix = new WebKitCSSMatrix(computedStyle.transform);
+        previousTranslate = matrix.m41;
+
+        animationFrameId = requestAnimationFrame(dragAnimationLoop);
+    });
+
+    galleryWrapper.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        const currentX = e.pageX;
+        currentTranslate = previousTranslate + (currentX - startX);
+    });
+
+    function dragAnimationLoop() {
+        if (!isDragging) return;
+
+        const halfTrackWidth = galleryTarget.scrollWidth / 2;
+
+        if (currentTranslate > 0) {
+            currentTranslate = -halfTrackWidth;
+            startX = startX + halfTrackWidth;
+        } else if (currentTranslate < -halfTrackWidth) {
+            currentTranslate = 0;
+            startX = startX - halfTrackWidth;
+        }
+
+        galleryTarget.style.transform = `translateX(${currentTranslate}px)`;
+        animationFrameId = requestAnimationFrame(dragAnimationLoop);
+    }
+
+    // Handle Mouse Up (Determines if the action was a Click or a Drag)
+    galleryWrapper.addEventListener("mouseup", (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        cancelAnimationFrame(animationFrameId);
+
+        galleryTarget.style.animationPlayState = "running";
+
+        // Measure mouse movement distance during the click down lifecycle
+        const dragDistance = Math.abs(e.pageX - clickStartX);
+
+        // If the mouse moved less than 5 pixels, it's an intentional click
+        if (dragDistance < 5) {
+            const clickedImg = e.target.closest("img");
+            if (clickedImg) {
+                const imageSrc = clickedImg.getAttribute("src");
+
+                // Cross-reference source image path with your systems database
+                const matchedSystem = verifiedSystems.find(
+                    (item) => item.mainImg === imageSrc,
+                );
+
+                if (matchedSystem) {
+                    // Navigate seamlessly to the layout target anchor lower on the page
+                    window.location.hash = matchedSystem.name.replace(
+                        /\s+/g,
+                        "-",
+                    );
+                }
+            }
+        }
+    });
+
+    galleryWrapper.addEventListener("mouseleave", () => {
+        if (!isDragging) return;
+        isDragging = false;
+        cancelAnimationFrame(animationFrameId);
+        galleryTarget.style.animationPlayState = "running";
+    });
+
+    // --- MOBILE SWIPE SUPPORT ---
+    galleryWrapper.addEventListener("touchstart", (e) => {
+        isDragging = true;
+        startX = e.touches.pageX;
+        galleryTarget.style.animationPlayState = "paused";
+        const computedStyle = window.getComputedStyle(galleryTarget);
+        const matrix = new WebKitCSSMatrix(computedStyle.transform);
+        previousTranslate = matrix.m41;
+        animationFrameId = requestAnimationFrame(dragAnimationLoop);
+    });
+
+    galleryWrapper.addEventListener("touchmove", (e) => {
+        if (!isDragging) return;
+        currentTranslate = previousTranslate + (e.touches.pageX - startX);
+    });
+
+    galleryWrapper.addEventListener("touchend", () => {
+        isDragging = false;
+        cancelAnimationFrame(animationFrameId);
+        galleryTarget.style.animationPlayState = "running";
+    });
 </script>
 
 <!-- 1. The is:inline attribute forces Astro to preserve this CSS exactly as written -->
@@ -667,6 +830,7 @@ import systems from "../cms/systems.json";
         position: absolute;
         width: 100%;
         height: 300px;
+        cursor: grab;
     }
 
     .gallery-track {
@@ -676,9 +840,6 @@ import systems from "../cms/systems.json";
         height: 100% !important;
         align-items: center !important;
         gap: 20px;
-
-        /* Uses the pixel-calculated speed, defaults to 30s if JS hasn't run yet */
-        animation: slideLeft var(--scroll-speed, 30s) infinite linear;
     }
 
     .gallery img {
@@ -688,6 +849,12 @@ import systems from "../cms/systems.json";
         transform: translate(-50%, -50%);
         object-fit: contain;
         height: 100%;
+        user-select: none !important;
+        -webkit-user-drag: none !important;
+
+        /* ENABLES CLICKABILITY - Make sure pointer-events is NOT set to none */
+        pointer-events: auto !important;
+        cursor: pointer;
     }
 
     .gallery-track:hover {
