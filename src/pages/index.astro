@@ -219,37 +219,12 @@ import systems from "../cms/systems.json";
         </div>
 
         <div id="gallery">
-            <div class="gallery-track">
-                <img src="/img/odysseyMain.webp" />
-                <img src="/img/channelFMain.webp" />
-                <img src="/img/2600lightSixerMain.webp" />
-                <img src="/img/intellivisionMain.webp" />
-                <img src="/img/colorTVGameBlockKazushiMain.webp" />
-                <img src="img/400Main.webp" />
-                <img src="/img/colecovisionMain.webp" />
-                <img src="/img/52004portMain.webp" />
-                <img src="/img/famicomMain.webp" />
-                <img src="/img/masterSystemMain.webp" />
-                <img src="/img/NESmain.webp" />
-                <img src="/img/gameBoyMain.webp" />
-                <img src="/img/segaCDMain.webp" />
-                <img src="/img/virtualBoyMain.webp" />
-                <img src="/img/namco5in1ArcadeClassics.webp" />
-                <img src="/img/odysseyMain.webp" />
-                <img src="/img/channelFMain.webp" />
-                <img src="/img/2600lightSixerMain.webp" />
-                <img src="/img/intellivisionMain.webp" />
-                <img src="/img/colorTVGameBlockKazushiMain.webp" />
-                <img src="img/400Main.webp" />
-                <img src="/img/colecovisionMain.webp" />
-                <img src="/img/52004portMain.webp" />
-                <img src="/img/famicomMain.webp" />
-                <img src="/img/masterSystemMain.webp" />
-                <img src="/img/NESmain.webp" />
-                <img src="/img/gameBoyMain.webp" />
-                <img src="/img/segaCDMain.webp" />
-                <img src="/img/virtualBoyMain.webp" />
-                <img src="/img/namco5in1ArcadeClassics.webp" />
+            <!-- JavaScript will dynamically inject the track and filtered images here -->
+            <div
+                id="gallery-container-target"
+                class="gallery-track"
+                style="width: 100%; height: 100%;"
+            >
             </div>
         </div>
     </body>
@@ -257,7 +232,6 @@ import systems from "../cms/systems.json";
 
 <script define:vars={{ systems }}>
     // --- SAFE DATA TYPE INGESTION FORCE-PATCH ---
-    // If Astro bundled 'systems' as a raw text string, parse it cleanly back into an object array
     const verifiedSystems =
         typeof systems === "string" ? JSON.parse(systems) : systems;
 
@@ -267,6 +241,7 @@ import systems from "../cms/systems.json";
     );
     const decadeButtons = document.querySelectorAll(".decade-btn");
     const manuButtons = document.querySelectorAll(".manu-btn");
+    const galleryTarget = document.getElementById("gallery-container-target");
 
     let activeDecade = null;
     let activeManu = null;
@@ -303,6 +278,50 @@ import systems from "../cms/systems.json";
         return itemTypes.some((t) => checkedTypes.includes(t));
     }
 
+    function renderDynamicGallery() {
+        const checkedTypes = getCheckedTypes();
+
+        const filteredImages = verifiedSystems
+            .filter(
+                (item) => passesTypeCheck(item, checkedTypes) && item.mainImg,
+            )
+            .map((item) => item.mainImg);
+
+        if (filteredImages.length === 0) {
+            galleryTarget.innerHTML = `<div style="color: #555; text-align: center; width: 100%; padding-top: 100px;">No systems match criteria</div>`;
+            galleryTarget.style.animation = "none";
+            return;
+        }
+
+        const displayList = [...filteredImages, ...filteredImages];
+
+        galleryTarget.innerHTML = displayList
+            .map((imgSrc) => `<img src="${imgSrc}" alt="Museum Hardware" />`)
+            .join("");
+
+        // --- PERFECTLY UNIFORM SPEED ENGINE ---
+        // Wait a brief microtask moment for the browser to register the new layout images
+        requestAnimationFrame(() => {
+            // Read the total horizontal width of the entire track in pixels
+            const trackWidth = galleryTarget.scrollWidth;
+
+            // Define your speed: How many pixels should the track move per second?
+            // Lower numbers = slower movement. Higher numbers = faster movement.
+            const pixelsPerSecond = 10;
+
+            // Duration = (Half of the total track width) / speed
+            // We divide by 2 because the animation only slides -50% to loop perfectly
+            const exactDuration = trackWidth / 2 / pixelsPerSecond;
+
+            // Inject the precise calculated timing back into the CSS animation
+            galleryTarget.style.setProperty(
+                "--scroll-speed",
+                `${exactDuration}s`,
+            );
+            galleryTarget.style.animation = "";
+        });
+    }
+
     // --- Decade Layout Generator ---
     function buildDecadeHTML(startYear) {
         let html = "";
@@ -320,16 +339,7 @@ import systems from "../cms/systems.json";
                 <div class="dropdown-col">
                     <h4>${year}</h4>
                     <div class="col-links">
-                        ${
-                            matches.length > 0
-                                ? matches
-                                      .map(
-                                          (item) =>
-                                              `<a href="#${item.name.replace(/\s+/g, "-")}">${item.name}</a>`,
-                                      )
-                                      .join("")
-                                : `<span class="no-systems">—</span>`
-                        }
+                        ${matches.length > 0 ? matches.map((item) => `<a href="#${item.name.replace(/\s+/g, "-")}">${item.name}</a>`).join("") : `<span class="no-systems">—</span>`}
                     </div>
                 </div>
             `;
@@ -346,57 +356,38 @@ import systems from "../cms/systems.json";
             "sony",
             "microsoft",
         ];
-
-        // 1. Gather all systems passing the checkbox filters
         const matchingSystems = verifiedSystems.filter((systemObj) =>
             passesTypeCheck(systemObj, checkedTypes),
         );
 
-        // 2. Handle the "Everything Else" Unique Brand List
         if (manufacturerName === "Everything Else") {
             const uniqueManus = new Set();
-
             matchingSystems.forEach((systemObj) => {
                 const rawManu = systemObj.manufacturer
                     ? String(systemObj.manufacturer).trim()
                     : "";
                 if (rawManu) {
                     const manuLower = rawManu.toLowerCase();
-                    // Exclude the big five brands
                     if (!topFiveBrands.includes(manuLower)) {
-                        uniqueManus.add(rawManu); // Keeps original casing for display
+                        uniqueManus.add(rawManu);
                     }
                 }
             });
 
-            // Convert Set back to an alphabetized array
             const sortedManus = Array.from(uniqueManus).sort((a, b) =>
                 a.localeCompare(b),
             );
 
             return `
-            <div class="dropdown-col" style="border-right: none;">
-                <h4>Other Brands</h4>
-                <div class="col-links">
-                    ${
-                        sortedManus.length > 0
-                            ? sortedManus
-                                  .map((manu) => {
-                                      // Creates a URL slug like #magnavox or #coleco
-                                      const slug = manu
-                                          .toLowerCase()
-                                          .replace(/\s+/g, "-");
-                                      return `<a href="#${slug}">${manu}</a>`;
-                                  })
-                                  .join("")
-                            : `<span class="no-systems">No matching brands</span>`
-                    }
+                <div class="dropdown-col" style="border-right: none;">
+                    <h4>Other Brands</h4>
+                    <div class="col-links">
+                        ${sortedManus.length > 0 ? sortedManus.map((manu) => `<a href="#${manu.toLowerCase().replace(/\s+/g, "-")}">${manu}</a>`).join("") : `<span class="no-systems">No matching brands</span>`}
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
         }
 
-        // 3. Fallback: Original logic for individual Top 5 brand dropdowns
         const brandMatches = matchingSystems.filter((systemObj) => {
             const itemManu = systemObj.manufacturer
                 ? String(systemObj.manufacturer).trim()
@@ -407,22 +398,13 @@ import systems from "../cms/systems.json";
         });
 
         return `
-        <div class="dropdown-col" style="border-right: none;">
-            <h4>${manufacturerName}</h4>
-            <div class="col-links">
-                ${
-                    brandMatches.length > 0
-                        ? brandMatches
-                              .map(
-                                  (systemObj) =>
-                                      `<a href="#${systemObj.name.replace(/\s+/g, "-")}">${systemObj.name}</a>`,
-                              )
-                              .join("")
-                        : `<span class="no-systems">No matching systems</span>`
-                }
+            <div class="dropdown-col" style="border-right: none;">
+                <h4>${manufacturerName}</h4>
+                <div class="col-links">
+                    ${brandMatches.length > 0 ? brandMatches.map((systemObj) => `<a href="#${systemObj.name.replace(/\s+/g, "-")}">${systemObj.name}</a>`).join("") : `<span class="no-systems">No matching systems</span>`}
+                </div>
             </div>
-        </div>
-    `;
+        `;
     }
 
     // --- Hover Management: Decades ---
@@ -431,17 +413,13 @@ import systems from "../cms/systems.json";
             clearTimeout(hoverTimeout);
             activeManu = null;
             activeDecade = parseInt(e.target.dataset.decade, 10);
-
             dropdown.style.left = "";
             dropdown.style.width = "";
             dropdown.classList.remove("single-col");
-
             dropdown.innerHTML = buildDecadeHTML(activeDecade);
             dropdown.classList.remove("hidden");
         });
-
         btn.addEventListener("mouseleave", () => {
-            // Clear any old timers before starting a new one
             clearTimeout(hoverTimeout);
             hoverTimeout = setTimeout(
                 () => dropdown.classList.add("hidden"),
@@ -456,24 +434,19 @@ import systems from "../cms/systems.json";
             clearTimeout(hoverTimeout);
             activeDecade = null;
             activeManu = e.target.dataset.manu;
-
             dropdown.classList.add("single-col");
             dropdown.innerHTML = buildManuHTML(activeManu);
 
             const parentElement = document.getElementById("buttons");
             const parentRect = parentElement.getBoundingClientRect();
             const btnRect = e.target.getBoundingClientRect();
-
             const offsetLeft = btnRect.left - parentRect.left;
 
             dropdown.style.left = `${offsetLeft}px`;
             dropdown.style.width = "250px";
-
             dropdown.classList.remove("hidden");
         });
-
         btn.addEventListener("mouseleave", () => {
-            // Clear any old timers before starting a new one
             clearTimeout(hoverTimeout);
             hoverTimeout = setTimeout(
                 () => dropdown.classList.add("hidden"),
@@ -482,14 +455,8 @@ import systems from "../cms/systems.json";
         });
     });
 
-    // --- Hover Management: The Dropdown Container Window Itself ---
-    dropdown.addEventListener("mouseenter", () => {
-        // If the mouse moves inside the menu, cancel the closing countdown instantly
-        clearTimeout(hoverTimeout);
-    });
-
+    dropdown.addEventListener("mouseenter", () => clearTimeout(hoverTimeout));
     dropdown.addEventListener("mouseleave", () => {
-        // FIX: Clear any old loops and use a matching 200ms delay to close safely
         clearTimeout(hoverTimeout);
         hoverTimeout = setTimeout(() => dropdown.classList.add("hidden"), 200);
     });
@@ -497,6 +464,7 @@ import systems from "../cms/systems.json";
     // --- Dynamic Checkbox Handling Updates ---
     checkboxes.forEach((cb) => {
         cb.addEventListener("change", () => {
+            renderDynamicGallery(); // Triggers gallery layout generation instantly
             if (dropdown.classList.contains("hidden")) return;
             if (activeDecade)
                 dropdown.innerHTML = buildDecadeHTML(activeDecade);
@@ -504,39 +472,26 @@ import systems from "../cms/systems.json";
         });
     });
 
-    // --- Inverted Toggle Engine: Default Off ---
+    // --- Inverted Toggle Engine ---
     const layoutToggle = document.getElementById("layout-toggle-switch");
-
-    function forceLayoutRedraw() {
-        if (dropdown.classList.contains("hidden")) return;
-        if (activeDecade) dropdown.innerHTML = buildDecadeHTML(activeDecade);
-        if (activeManu) dropdown.innerHTML = buildManuHTML(activeManu);
-    }
 
     layoutToggle.addEventListener("change", (e) => {
         const isSelectAll = e.target.checked;
-
         checkboxes.forEach((cb) => {
-            if (isSelectAll) {
-                // Checked (ON): Activate every single checkbox
-                cb.checked = true;
-            } else {
-                // Unchecked (OFF): Drop everything except 'console'
-                cb.checked = cb.value === "console";
-            }
+            cb.checked = isSelectAll ? true : cb.value === "console";
         });
 
-        forceLayoutRedraw();
+        renderDynamicGallery(); // Update engine
+        if (dropdown.classList.contains("hidden")) return;
+        if (activeDecade) dropdown.innerHTML = buildDecadeHTML(activeDecade);
+        if (activeManu) dropdown.innerHTML = buildManuHTML(activeManu);
     });
 
-    // Dynamic sync: If a user changes sub-boxes manually, recalculate
-    // whether the master switch needs to toggle on or off.
     checkboxes.forEach((cb) => {
         cb.addEventListener("change", () => {
             const allChecked = Array.from(checkboxes).every(
                 (item) => item.checked,
             );
-
             if (allChecked && !layoutToggle.checked) {
                 layoutToggle.checked = true;
             } else if (!allChecked && layoutToggle.checked) {
@@ -544,6 +499,9 @@ import systems from "../cms/systems.json";
             }
         });
     });
+
+    // --- INITIALIZATION INITIAL BOOTSTRAP RUN ---
+    renderDynamicGallery();
 </script>
 
 <!-- 1. The is:inline attribute forces Astro to preserve this CSS exactly as written -->
@@ -712,8 +670,15 @@ import systems from "../cms/systems.json";
     }
 
     .gallery-track {
-        display: flex;
-        animation: slideLeft 30s infinite linear;
+        display: flex !important;
+        flex-direction: row !important;
+        width: max-content !important;
+        height: 100% !important;
+        align-items: center !important;
+        gap: 20px;
+
+        /* Uses the pixel-calculated speed, defaults to 30s if JS hasn't run yet */
+        animation: slideLeft var(--scroll-speed, 30s) infinite linear;
     }
 
     .gallery img {
