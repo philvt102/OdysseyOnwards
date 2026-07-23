@@ -305,7 +305,10 @@ import systems from "../cms/systems.json";
 
         // 2. Inject the image tags cleanly into the DOM window
         galleryTarget.innerHTML = displayList
-            .map((imgSrc) => `<img src="${imgSrc}" alt="Museum Hardware" />`)
+            .map(
+                (imgSrc) =>
+                    `<img src="${imgSrc}" alt="Museum Hardware" draggable="false" />`,
+            )
             .join("");
 
         const totalImages = galleryTarget.querySelectorAll("img");
@@ -560,74 +563,68 @@ import systems from "../cms/systems.json";
     let clickStartX = 0;
     let currentTranslate = 0;
     let previousTranslate = 0;
-    let animationFrameId = 0;
 
     const galleryWrapper = document.getElementById("gallery");
 
+    // Block native HTML5 image extraction clone popups completely
+    galleryWrapper.addEventListener("dragstart", (e) => e.preventDefault());
+
     galleryWrapper.addEventListener("mousedown", (e) => {
-        // Only trigger on primary left click
+        // Only engage tracking on standard left click
         if (e.button !== 0) return;
 
         isDragging = true;
-        startX = e.pageX;
-        clickStartX = e.pageX; // Lock down our click safety checkpoint
+        clickStartX = e.pageX;
 
-        galleryTarget.style.animationPlayState = "paused";
-
+        // 1. Capture the exact pixel transform offset the track is at right now
         const computedStyle = window.getComputedStyle(galleryTarget);
         const matrix = new WebKitCSSMatrix(computedStyle.transform);
+
+        // 2. Set our initial tracking values
         previousTranslate = matrix.m41;
+        startX = e.pageX - previousTranslate;
 
-        animationFrameId = requestAnimationFrame(dragAnimationLoop);
+        // 3. Clear active animation entirely so it doesn't fight your cursor updates
+        galleryTarget.style.animation = "none";
+        galleryTarget.style.transform = `translateX(${previousTranslate}px)`;
     });
 
-    galleryWrapper.addEventListener("mousemove", (e) => {
+    window.addEventListener("mousemove", (e) => {
         if (!isDragging) return;
-        const currentX = e.pageX;
-        currentTranslate = previousTranslate + (currentX - startX);
-    });
 
-    function dragAnimationLoop() {
-        if (!isDragging) return;
+        // Calculate translation delta relative to your initial mouse offset anchor
+        currentTranslate = e.pageX - startX;
 
         const halfTrackWidth = galleryTarget.scrollWidth / 2;
 
+        // INFINITE WARPING: Warp smoothly if dragging past tracking thresholds
         if (currentTranslate > 0) {
-            currentTranslate = -halfTrackWidth;
-            startX = startX + halfTrackWidth;
+            currentTranslate -= halfTrackWidth;
+            startX += halfTrackWidth;
         } else if (currentTranslate < -halfTrackWidth) {
-            currentTranslate = 0;
-            startX = startX - halfTrackWidth;
+            currentTranslate += halfTrackWidth;
+            startX -= halfTrackWidth;
         }
 
+        // Push positions live onto screen layout transforms instantly
         galleryTarget.style.transform = `translateX(${currentTranslate}px)`;
-        animationFrameId = requestAnimationFrame(dragAnimationLoop);
-    }
+    });
 
-    // Handle Mouse Up (Determines if the action was a Click or a Drag)
-    galleryWrapper.addEventListener("mouseup", (e) => {
+    window.addEventListener("mouseup", (e) => {
         if (!isDragging) return;
         isDragging = false;
-        cancelAnimationFrame(animationFrameId);
 
-        galleryTarget.style.animationPlayState = "running";
-
-        // Measure mouse movement distance during the click down lifecycle
         const dragDistance = Math.abs(e.pageX - clickStartX);
 
-        // If the mouse moved less than 5 pixels, it's an intentional click
-        if (dragDistance < 5) {
+        // A true intentional click (moved less than 6px) handles navigation target anchors
+        if (dragDistance < 6) {
             const clickedImg = e.target.closest("img");
             if (clickedImg) {
                 const imageSrc = clickedImg.getAttribute("src");
-
-                // Cross-reference source image path with your systems database
                 const matchedSystem = verifiedSystems.find(
                     (item) => item.mainImg === imageSrc,
                 );
-
                 if (matchedSystem) {
-                    // Navigate seamlessly to the layout target anchor lower on the page
                     window.location.hash = matchedSystem.name.replace(
                         /\s+/g,
                         "-",
@@ -635,35 +632,39 @@ import systems from "../cms/systems.json";
                 }
             }
         }
-    });
 
-    galleryWrapper.addEventListener("mouseleave", () => {
-        if (!isDragging) return;
-        isDragging = false;
-        cancelAnimationFrame(animationFrameId);
-        galleryTarget.style.animationPlayState = "running";
-    });
+        // 4. RESTORE CAROUSEL ENGINE: Calculate track values back out to CSS scope seamlessly
+        // This prevents the track from teleporting back to zero when animation loops pick up
+        const totalImages = galleryTarget.querySelectorAll("img");
+        if (totalImages.length > 0) {
+            let calculatedTrackWidth = 0;
+            const targetHeight = 240;
+            const elementGap = 20;
 
-    // --- MOBILE SWIPE SUPPORT ---
-    galleryWrapper.addEventListener("touchstart", (e) => {
-        isDragging = true;
-        startX = e.touches.pageX;
-        galleryTarget.style.animationPlayState = "paused";
-        const computedStyle = window.getComputedStyle(galleryTarget);
-        const matrix = new WebKitCSSMatrix(computedStyle.transform);
-        previousTranslate = matrix.m41;
-        animationFrameId = requestAnimationFrame(dragAnimationLoop);
-    });
+            for (let i = 0; i < totalImages.length / 2; i++) {
+                const img = totalImages[i];
+                const imageAspectRatio = img.naturalWidth / img.naturalHeight;
+                let computedImageWidth = imageAspectRatio * targetHeight;
+                if (computedImageWidth > 330) computedImageWidth = 330;
+                calculatedTrackWidth += computedImageWidth + elementGap;
+            }
 
-    galleryWrapper.addEventListener("touchmove", (e) => {
-        if (!isDragging) return;
-        currentTranslate = previousTranslate + (e.touches.pageX - startX);
-    });
+            const pixelsPerSecond = 100;
+            const exactDuration = calculatedTrackWidth / pixelsPerSecond;
+            galleryTarget.style.setProperty(
+                "--scroll-speed",
+                `${exactDuration}s`,
+            );
 
-    galleryWrapper.addEventListener("touchend", () => {
-        isDragging = false;
-        cancelAnimationFrame(animationFrameId);
-        galleryTarget.style.animationPlayState = "running";
+            // Apply keyframe loops starting exactly where you let go of your track drag
+            const currentPercentage =
+                (currentTranslate / calculatedTrackWidth) * 100;
+
+            // Re-apply animation smoothly using a brief microtask tick delay
+            setTimeout(() => {
+                galleryTarget.style.animation = `slideLeft var(--scroll-speed) infinite linear`;
+            }, 10);
+        }
     });
 </script>
 
@@ -831,6 +832,9 @@ import systems from "../cms/systems.json";
         width: 100%;
         height: 300px;
         cursor: grab;
+        user-select: none !important;
+        -webkit-user-select: none !important;
+        -moz-user-select: none !important;
     }
 
     .gallery-track {
@@ -840,21 +844,26 @@ import systems from "../cms/systems.json";
         height: 100% !important;
         align-items: center !important;
         gap: 20px;
+        will-change: transform;
     }
 
-    .gallery img {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        object-fit: contain;
-        height: 100%;
+    #gallery img {
         user-select: none !important;
         -webkit-user-drag: none !important;
-
-        /* ENABLES CLICKABILITY - Make sure pointer-events is NOT set to none */
         pointer-events: auto !important;
         cursor: pointer;
+    }
+
+    #gallery:active {
+        cursor: grabbing;
+    }
+
+    #gallery img:active {
+        cursor: grabbing;
+    }
+    
+    #gallery:hover #gallery-container-target {
+        animation-play-state: paused !important;
     }
 
     .gallery-track:hover {
